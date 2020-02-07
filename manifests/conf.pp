@@ -18,12 +18,17 @@ define sudo::conf(
 
   include ::sudo
 
+  $_dname = $sudo::selective_purge ? {
+    true    => "${dname}_puppet",
+    default => $dname
+  }
+
   $notify = $ensure ? {
-    'present' => Exec["sudo-syntax-check for file ${dname}"],
+    'present' => Exec["sudo-syntax-check for file ${_dname}"],
     default   => undef,
   }
 
-  file {"/etc/sudoers.d/${dname}":
+  file {"/etc/sudoers.d/${_dname}":
     ensure  => $ensure,
     owner   => root,
     group   => root,
@@ -34,9 +39,9 @@ define sudo::conf(
     require => Package['sudo'],
   }
 
-  exec {"sudo-syntax-check for file ${dname}":
+  exec {"sudo-syntax-check for file ${_dname}":
     path        => $::path,
-    command     => "visudo -c -f '/etc/sudoers.d/${dname}' || ( rm -f '/etc/sudoers.d/${dname}' && exit 1)",
+    command     => "visudo -c -f '/etc/sudoers.d/${_dname}' || ( rm -f '/etc/sudoers.d/${_dname}' && exit 1)",
     refreshonly => true,
   }
 

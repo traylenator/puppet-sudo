@@ -1,6 +1,12 @@
 class sudo (
   Boolean $config_file_replace = true,
+  Boolean $selective_purge = false,
 ) {
+
+  $_ignore = $selective_purge ? {
+    true    => '*[!_puppet]',
+    default => undef,
+  }
   package {'sudo':
     ensure => 'present',
   }
@@ -18,6 +24,7 @@ class sudo (
     purge   => true,
     recurse => true,
     force   => true,
+    ignore  => $_ignore,
   }
 
   if $config_file_replace {
